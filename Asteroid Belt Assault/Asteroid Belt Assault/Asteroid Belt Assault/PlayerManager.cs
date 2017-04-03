@@ -10,6 +10,7 @@ namespace Asteroid_Belt_Assault
 {
     class PlayerManager
     {
+        public Sprite Proton;
         public Sprite playerSprite;
         private float playerSpeed = 160.0f;
         private Rectangle playerAreaLimit;
@@ -24,6 +25,11 @@ namespace Asteroid_Belt_Assault
         private int playerRadius = 15;
         public ShotManager PlayerShotManager;
 
+        public double protonTime = 0;
+        public double protonTimeMax = 99999999999999;
+        private Random rand = new Random(System.Environment.TickCount);
+        public bool ProtonCannonUp = false;
+
         public PlayerManager(
             Texture2D texture,  
             Rectangle initialFrame,
@@ -36,10 +42,16 @@ namespace Asteroid_Belt_Assault
                 initialFrame,
                 Vector2.Zero);
 
+            Proton = new Sprite(
+                new Vector2(400, 0),
+                texture,
+                new Rectangle(0, 58, 45, 45),
+                new Vector2(0, 40));
+
             PlayerShotManager = new ShotManager(
                 texture,
-                new Rectangle(0, 300, 5, 5),
-                4,
+                new Rectangle(0, 260, 40, 50),
+                1,
                 2,
                 250f,
                 screenBounds);
@@ -142,9 +154,20 @@ namespace Asteroid_Belt_Assault
         public void Update(GameTime gameTime)
         {
             PlayerShotManager.Update(gameTime);
+            Proton.Update(gameTime);
 
             if (!Destroyed)
             {
+                if (ProtonCannonUp)
+                {
+                    protonTime += gameTime.ElapsedGameTime.TotalSeconds;
+
+                    if(protonTime >= protonTimeMax)
+                    {
+                        ProtonCannonUp = false;
+                        protonTime = 0;
+                    }
+                }
                 playerSprite.Velocity = Vector2.Zero;
 
                 shotTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -163,6 +186,7 @@ namespace Asteroid_Belt_Assault
         public void Draw(SpriteBatch spriteBatch)
         {
             PlayerShotManager.Draw(spriteBatch);
+            Proton.Draw(spriteBatch);
 
             if (!Destroyed)
             {
